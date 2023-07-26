@@ -1,52 +1,57 @@
-import easyocr as ocr  #OCR
-import streamlit as st  #Web App
-from PIL import Image #Image Processing
-import numpy as np #Image Processing 
+import easyocr as ocr
+import streamlit as st
+from PIL import Image
+import numpy as np
 
-#title
+# Title
 st.title("Easy OCR - Extract Text from Images")
-
-#subtitle
-st.markdown("## Optical Character Recognition - Using `easyocr`, `streamlit`")
-
+st.markdown("## Optical Character Recognition - Using `easyocr`, `streamlit'")
 st.markdown("")
 
-#image uploader
-image = st.file_uploader(label = "Upload your image here",type=['png','jpg','jpeg'])
-
-
+# Function to load the OCR model
 @st.cache_data()
-def load_model(): 
-    reader = ocr.Reader(['en','hi'],model_storage_directory='.')
-    return reader 
+def load_model():
+    reader = ocr.Reader(['en', 'hi'], model_storage_directory='.')
+    return reader
 
-reader = load_model() #load model
+# Main function to run the OCR app
+def main():
+    # Load the OCR model
+    reader = load_model()
 
-if image is not None:
+    # Image uploader
+    image = st.file_uploader(label="Upload your image here", type=['png', 'jpg', 'jpeg'])
 
-    input_image = Image.open(image) #read image
-    st.image(input_image) #display image
+    if image is not None:
+        # Read the uploaded image
+        input_image = Image.open(image)
 
-    with st.spinner("🤖 AI is at Work! "):
-        
+        # Display the image
+        st.image(input_image)
 
-        result = reader.readtext(np.array(input_image))
+        # Button to perform OCR
+        if st.button("Perform OCR"):
+            with st.spinner("🤖 AI is at Work!"):
+                result = reader.readtext(np.array(input_image))
 
-        result_text = [] #empty list for results
+                result_text = []
 
+                for text in result:
+                    result_text.append(text[1])
 
-        for text in result:
-            result_text.append(text[1])
+                # Display the extracted text
+                if result_text:
+                    st.success("Text Extracted Successfully!")
+                    st.write("\n".join(result_text))
+                else:
+                    st.warning("No Text Detected in the Image.")
 
-        st.write(result_text)
-    #st.success("Here you go!")
-    st.balloons()
-else:
-    st.write("Upload an Image")
+                st.balloons()
 
-st.caption("Made with ❤️ by @Srikanth284")
+    else:
+        st.write("Upload an Image")
 
+    st.caption("Made with ❤️ by @Srikanth284")
 
-
-
-
+if __name__ == "__main__":
+    main()
